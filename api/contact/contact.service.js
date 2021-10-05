@@ -1,55 +1,16 @@
 const dbService = require("../../services/db.service");
 const ObjectId = require("mongodb").ObjectId;
 const asyncLocalStorage = require("../../services/als.service");
+const logger = require("../../services/logger.service");
 
-async function query(filterBy = {}) {
+async function query(filterBy = {}, userId) {
   try {
-    // const criteria = _buildCriteria(filterBy)
     const collection = await dbService.getCollection("contact");
-    // const contacts = await collection.find(criteria).toArray()
-    var contacts = await collection
-      .aggregate([
-        {
-          $match: filterBy,
-        },
-        {
-          $lookup: {
-            localField: "fromUserId",
-            from: "user",
-            foreignField: "_id",
-            as: "fromUser",
-          },
-        },
-        {
-          $unwind: "$fromUser",
-        },
-        {
-          $lookup: {
-            localField: "toUserId",
-            from: "user",
-            foreignField: "_id",
-            as: "toUser",
-          },
-        },
-        {
-          $unwind: "$toUser",
-        },
-      ])
-      .toArray();
-    contacts = contacts.map((contact) => {
-      contact.fromUser = {
-        _id: contact.fromUser._id,
-        fullname: contact.fromUser.fullname,
-      };
-      contact.toUser = {
-        _id: contact.toUser._id,
-        fullname: contact.toUser.fullname,
-      };
-      delete contact.fromUserId;
-      delete contact.toUserId;
-      return contact;
-    });
-
+    // const criteria = _buildCriteria(filterBy);
+    // const contacts = await collection.find(criteria).toArray();
+    // var contacts = await collection.find({ fromUserId: userId }).toArray();
+    var contacts = await collection.find({}).toArray();
+    // contacts = contacts.map((contact) => {});
     return contacts;
   } catch (err) {
     logger.error("cannot find contacts", err);
@@ -111,5 +72,5 @@ module.exports = {
   query,
   remove,
   add,
-  getByUsername
+  getByUsername,
 };
