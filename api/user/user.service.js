@@ -217,7 +217,8 @@ async function add(user) {
       password: user.password,
       fullname: user.fullname,
       coins: user.coins || 100,
-      contacts: gContacts,
+      contacts: user.contacts || gContacts,
+      moves: user.moves || [],
     };
     const collection = await dbService.getCollection("user");
     await collection.insertOne(userToAdd);
