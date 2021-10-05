@@ -1,6 +1,6 @@
 const dbService = require("../../services/db.service");
 // const logger = require('../../services/logger.service')
-const reviewService = require("../contact/contact.service");
+const contactService = require("../contact/contact.service");
 const ObjectId = require("mongodb").ObjectId;
 
 const gContacts = [
@@ -155,12 +155,12 @@ async function getById(userId) {
     const user = await collection.findOne({ _id: ObjectId(userId) });
     delete user.password;
 
-    user.givenReviews = await reviewService.query({
+    user.givenContacts = await contactService.query({
       byUserId: ObjectId(user._id),
     });
-    user.givenReviews = user.givenReviews.map((review) => {
-      delete review.byUser;
-      return review;
+    user.givenContacts = user.givenContacts.map((contact) => {
+      delete contact.byUser;
+      return contact;
     });
 
     return user;

@@ -2,62 +2,71 @@ const dbService = require("../../services/db.service");
 const ObjectId = require("mongodb").ObjectId;
 const asyncLocalStorage = require("../../services/als.service");
 
-async function query(filterBy = {}, loggedUserId) {
+async function query(filterBy = {}) {
   try {
     // const criteria = _buildCriteria(filterBy)
-    const collection = await dbService.getCollection("user");
-    const user = await collection.findOne({ _id: ObjectId(loggedUserId) });
+    const collection = await dbService.getCollection("contact");
     // const contacts = await collection.find(criteria).toArray()
-    // var contacts = await collection
-    //   .aggregate([
-    //     {
-    //       $match: filterBy,
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: "byUserId",
-    //         from: "user",
-    //         foreignField: "_id",
-    //         as: "byUser",
-    //       },
-    //     },
-    //     {
-    //       $unwind: "$byUser",
-    //     },
-    //     {
-    //       $lookup: {
-    //         localField: "aboutUserId",
-    //         from: "user",
-    //         foreignField: "_id",
-    //         as: "aboutUser",
-    //       },
-    //     },
-    //     {
-    //       $unwind: "$aboutUser",
-    //     },
-    //   ])
-    //   .toArray();
-    // contacts = contacts.map((contact) => {
-    //   contact.byUser = {
-    //     _id: contact.byUser._id,
-    //     fullname: contact.byUser.fullname,
-    //   };
-    //   contact.aboutUser = {
-    //     _id: contact.aboutUser._id,
-    //     fullname: contact.aboutUser.fullname,
-    //   };
-    //   delete contact.byUserId;
-    //   delete contact.aboutUserId;
-    //   return contact;
-    // });
+    var contacts = await collection
+      .aggregate([
+        {
+          $match: filterBy,
+        },
+        {
+          $lookup: {
+            localField: "fromUserId",
+            from: "user",
+            foreignField: "_id",
+            as: "fromUser",
+          },
+        },
+        {
+          $unwind: "$fromUser",
+        },
+        {
+          $lookup: {
+            localField: "toUserId",
+            from: "user",
+            foreignField: "_id",
+            as: "toUser",
+          },
+        },
+        {
+          $unwind: "$toUser",
+        },
+      ])
+      .toArray();
+    contacts = contacts.map((contact) => {
+      contact.fromUser = {
+        _id: contact.fromUser._id,
+        fullname: contact.fromUser.fullname,
+      };
+      contact.toUser = {
+        _id: contact.toUser._id,
+        fullname: contact.toUser.fullname,
+      };
+      delete contact.fromUserId;
+      delete contact.toUserId;
+      return contact;
+    });
 
-    return user.contacts;
+    return contacts;
   } catch (err) {
     logger.error("cannot find contacts", err);
     throw err;
   }
 }
 
+async function getByUsername(username) {
+  try {
+    const collection = await dbService.getCollection("user");
+    const user = await collection.findOne({ username });
+    return user;
+  } catch (err) {
+    logger.error(`while finding user ${username}`, err);
+    throw err;
+  }
+}
 async function remove(contactId) {
   try {
     const store = asyncLocalStorage.getStore();
@@ -65,9 +74,9 @@ async function remove(contactId) {
     const collection = await dbService.getCollection("contact");
     // remove only if user is owner/admin
     const query = { _id: ObjectId(contactId) };
-    if (!isAdmin) query.byUserId = ObjectId(userId);
+    if (!isAdmin) query.fromUserId = ObjectId(userId);
     await collection.deleteOne(query);
-    // return await collection.deleteOne({ _id: ObjectId(contactId), byUserId: ObjectId(userId) })
+    // return await collection.deleteOne({ _id: ObjectId(contactId), fromUserId: ObjectId(userId) })
   } catch (err) {
     logger.error(`cannot remove contact ${contactId}`, err);
     throw err;
@@ -78,9 +87,11 @@ async function add(contact) {
   try {
     // peek only updatable fields!
     const contactToAdd = {
-      byUserId: ObjectId(contact.byUserId),
-      aboutUserId: ObjectId(contact.aboutUserId),
-      txt: contact.txt,
+      fromUserId: ObjectId(contact.fromUserId),
+      toUserId: ObjectId(contact._id),
+      createdAt: Date.now(),
+      status: "PENDING",
+      statusAt: null,
     };
     const collection = await dbService.getCollection("contact");
     await collection.insertOne(contactToAdd);
@@ -100,4 +111,5 @@ module.exports = {
   query,
   remove,
   add,
+  getByUsername
 };

@@ -5,8 +5,7 @@ const contactService = require("./contact.service");
 
 async function getContacts(req, res) {
   try {
-    const { loggedUserId } = req.body;
-    const contacts = await contactService.query(req.query, loggedUserId);
+    const contacts = await contactService.query(req.query);
     res.send(contacts);
   } catch (err) {
     logger.error("Cannot get contacts", err);
@@ -26,21 +25,22 @@ async function deleteContact(req, res) {
 
 async function addContact(req, res) {
   try {
-    var contact = req.body;
-    contact.byUserId = req.session.user._id;
+    const { username } = req.body;
+    var contact = await contactService.getByUsername(username);
+    contact.fromUserId = req.session.user._id;
     contact = await contactService.add(contact);
 
-    // prepare the updated contact for sending out
-    contact.byUser = await userService.getById(contact.byUserId);
-    contact.aboutUser = await userService.getById(contact.aboutUserId);
+    // // prepare the updated contact for sending out
+    // contact.fromUser = await userService.getById(contact.fromUserId);
+    // contact.toUser = await userService.getById(contact.toUserId);
 
-    console.log("CTRL SessionId:", req.sessionID);
-    socketService.broadcast({ type: "contact-added", data: contact });
-    socketService.emitToAll({
-      type: "user-updated",
-      data: contact.byUser,
-      room: req.session.user._id,
-    });
+    // console.log("CTRL SessionId:", req.sessionID);
+    // socketService.broadcast({ type: "contact-added", data: contact });
+    // socketService.emitToAll({
+    //   type: "user-updated",
+    //   data: contact.fromUser,
+    //   room: req.session.user._id,
+    // });
     res.send(contact);
   } catch (err) {
     console.log(err);
@@ -52,5 +52,6 @@ async function addContact(req, res) {
 module.exports = {
   getContacts,
   deleteContact,
+  addContact,
   addContact,
 };

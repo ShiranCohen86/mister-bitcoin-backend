@@ -1,14 +1,22 @@
-const express = require('express')
-const {requireAuth, requireAdmin} = require('../../middlewares/requireAuth.middleware')
-const {log} = require('../../middlewares/logger.middleware')
-const {addContact, getContacts, deleteContact} = require('./contact.controller')
-const  router = express.Router()
+const express = require("express");
+const {
+  requireAuth,
+  requireAdmin,
+} = require("../../middlewares/requireAuth.middleware");
+const { log } = require("../../middlewares/logger.middleware");
+const {
+  addContact,
+  getContacts,
+  deleteContact,
+  
+} = require("./contact.controller");
+const router = express.Router();
 
 // middleware that is specific to this router
 // router.use(requireAuth)
 
-router.post('/', log, getContacts)
-router.post('/',  requireAuth, addContact)
-router.delete('/:id',  requireAuth, deleteContact)
+router.get("/", log, getContacts);
+router.post("/", requireAuth, addContact);
+router.delete("/:id", requireAuth, deleteContact);
 
-module.exports = router
+module.exports = router;
