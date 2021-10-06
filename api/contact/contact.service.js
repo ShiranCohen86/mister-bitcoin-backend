@@ -55,8 +55,6 @@ async function getById(contactId, loggedUserId) {
     const contact = await contactCollection.findOne({
       _id: ObjectId(contactId),
     });
-    console.log({ loggedUserId });
-    console.log(contact.toUserId);
     const term =
       loggedUserId == contact.toUserId ? contact.fromUserId : contact.toUserId;
     const user = await userCollection.findOne({
@@ -69,7 +67,6 @@ async function getById(contactId, loggedUserId) {
         },
       ],
     });
-    console.log({ user });
     delete user.password;
 
     return user;
