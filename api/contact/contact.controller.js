@@ -15,6 +15,19 @@ async function getContacts(req, res) {
   }
 }
 
+async function getContactById(req, res) {
+  try {
+    const contact = await contactService.getById(
+      req.params.id,
+      req.session.user._id
+    );
+    res.send(contact);
+  } catch (err) {
+    logger.error("Failed to get contact", err);
+    res.status(500).send({ err: "Failed to get contact" });
+  }
+}
+
 async function deleteContact(req, res) {
   try {
     await contactService.remove(req.params.id);
@@ -56,4 +69,5 @@ module.exports = {
   deleteContact,
   addContact,
   addContact,
+  getContactById,
 };

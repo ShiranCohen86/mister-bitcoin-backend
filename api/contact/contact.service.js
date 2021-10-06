@@ -48,6 +48,37 @@ async function query(filterBy = {}, loggedUserId) {
   }
 }
 
+async function getById(contactId, loggedUserId) {
+  try {
+    const contactCollection = await dbService.getCollection("contact");
+    const userCollection = await dbService.getCollection("user");
+    const contact = await contactCollection.findOne({
+      _id: ObjectId(contactId),
+    });
+    console.log({ loggedUserId });
+    console.log(contact.toUserId);
+    const term =
+      loggedUserId == contact.toUserId ? contact.fromUserId : contact.toUserId;
+    const user = await userCollection.findOne({
+      $or: [
+        {
+          _id: ObjectId(term),
+        },
+        {
+          _id: ObjectId(term),
+        },
+      ],
+    });
+    console.log({ user });
+    delete user.password;
+
+    return user;
+  } catch (err) {
+    logger.error(`while finding contact ${contactId}`, err);
+    throw err;
+  }
+}
+
 async function getByUsername(username) {
   try {
     const collection = await dbService.getCollection("user");
@@ -103,4 +134,5 @@ module.exports = {
   remove,
   add,
   getByUsername,
+  getById,
 };
