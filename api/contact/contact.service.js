@@ -30,13 +30,15 @@ async function query(filterBy = {}, loggedUserId) {
           _id: ObjectId(contact.toUserId),
         });
         contact.username = user.username;
+        contact.phone = user.phone;
+        contact.email = user.email;
+        delete contact.fromUserId;
+        delete contact.toUserId;
+        delete contact.status;
+        delete contact.statusAt;
+        delete contact.createdAt;
       }
       return contact;
-
-      // delete contact.fromUserId;
-      // delete contact.toUserId;
-      // delete contact.status;
-      // delete contact.statusAt;
     });
     return Promise.all(contacts);
   } catch (err) {
