@@ -29,15 +29,16 @@ async function query(filterBy = {}, loggedUserId) {
         user = await userCollection.findOne({
           _id: ObjectId(contact.toUserId),
         });
-        contact.username = user.username;
-        contact.phone = user.phone;
-        contact.email = user.email;
-        delete contact.fromUserId;
-        delete contact.toUserId;
-        delete contact.status;
-        delete contact.statusAt;
-        delete contact.createdAt;
       }
+      contact.username = user.username;
+      contact.phone = user.phone;
+      contact.email = user.email;
+      delete contact.fromUserId;
+      delete contact.toUserId;
+      delete contact.status;
+      delete contact.statusAt;
+      delete contact.createdAt;
+
       return contact;
     });
     return Promise.all(contacts);
