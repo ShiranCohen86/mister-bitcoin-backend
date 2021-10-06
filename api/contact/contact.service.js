@@ -3,15 +3,42 @@ const ObjectId = require("mongodb").ObjectId;
 const asyncLocalStorage = require("../../services/als.service");
 const logger = require("../../services/logger.service");
 
-async function query(filterBy = {}, userId) {
+async function query(filterBy = {}, loggedUserId) {
   try {
-    const collection = await dbService.getCollection("contact");
+    const contactCollection = await dbService.getCollection("contact");
+    const userCollection = await dbService.getCollection("user");
     // const criteria = _buildCriteria(filterBy);
     // const contacts = await collection.find(criteria).toArray();
-    // var contacts = await collection.find({ fromUserId: userId }).toArray();
-    var contacts = await collection.find({}).toArray();
-    // contacts = contacts.map((contact) => {});
-    return contacts;
+    var contacts = await contactCollection
+      .find({
+        $or: [
+          { fromUserId: ObjectId(loggedUserId) },
+          { toUserId: ObjectId(loggedUserId) },
+        ],
+      })
+      .toArray();
+
+    contacts = contacts.map(async (contact) => {
+      var user;
+      if (contact.toUserId == loggedUserId) {
+        user = await userCollection.findOne({
+          _id: ObjectId(contact.fromUserId),
+        });
+        contact.username = user.username;
+      } else if (contact.fromUserId == loggedUserId) {
+        user = await userCollection.findOne({
+          _id: ObjectId(contact.toUserId),
+        });
+        contact.username = user.username;
+      }
+      return contact;
+
+      // delete contact.fromUserId;
+      // delete contact.toUserId;
+      // delete contact.status;
+      // delete contact.statusAt;
+    });
+    return Promise.all(contacts);
   } catch (err) {
     logger.error("cannot find contacts", err);
     throw err;

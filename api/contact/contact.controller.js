@@ -4,7 +4,10 @@ const contactService = require("./contact.service");
 
 async function getContacts(req, res) {
   try {
-    const contacts = await contactService.query(req.query, req.session.user._id);
+    const contacts = await contactService.query(
+      req.query,
+      req.session.user._id
+    );
     res.send(contacts);
   } catch (err) {
     logger.error("Cannot get contacts", err);
