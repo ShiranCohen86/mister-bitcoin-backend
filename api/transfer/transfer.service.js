@@ -8,8 +8,8 @@ module.exports = {
   addTransfer,
 };
 
-async function getTransfers(filterBy = {}, loggedUserId) {
-  const criteria = _buildCriteria(filterBy);
+async function getTransfers(loggedUserId) {
+  // const criteria = _buildCriteria(filterBy);
   try {
     const collection = await dbService.getCollection("transfer");
     var transfers = await collection
