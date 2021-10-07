@@ -31,7 +31,24 @@ async function getTransfers(req, res) {
   }
 }
 
+async function getTransferByUserId(req, res) {
+  try {
+    const userId = req.params.id;
+    const loggedUserId = req.session.user._id;
+    const transfers = await transferService.getTransfersByUserId(
+      userId,
+      loggedUserId
+    );
+
+    res.send(transfers);
+  } catch (err) {
+    logger.error("Failed to update user", err);
+    res.status(500).send({ err: "Failed to update user" });
+  }
+}
+
 module.exports = {
   addTransfer,
   getTransfers,
+  getTransferByUserId,
 };

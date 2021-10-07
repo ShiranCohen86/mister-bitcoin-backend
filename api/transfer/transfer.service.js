@@ -6,6 +6,7 @@ const ObjectId = require("mongodb").ObjectId;
 module.exports = {
   getTransfers,
   addTransfer,
+  getTransfersByUserId,
 };
 
 async function getTransfers(loggedUserId) {
@@ -17,6 +18,35 @@ async function getTransfers(loggedUserId) {
         $or: [
           { fromUserId: ObjectId(loggedUserId) },
           { toUserId: ObjectId(loggedUserId) },
+        ],
+      })
+      .toArray();
+    const test = transfers.map((transfer) => {
+      transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      return transfer;
+    });
+    return test;
+  } catch (err) {
+    logger.error("cannot find users", err);
+    throw err;
+  }
+}
+
+async function getTransfersByUserId(userId, loggedUserId) {
+  // const criteria = _buildCriteria(filterBy);
+  try {
+    const collection = await dbService.getCollection("transfer");
+    var transfers = await collection
+      .find({
+        $or: [
+          {
+            fromUserId: ObjectId(loggedUserId),
+            toUserId: ObjectId(userId),
+          },
+          {
+            fromUserId: ObjectId(userId),
+            toUserId: ObjectId(loggedUserId),
+          },
         ],
       })
       .toArray();
