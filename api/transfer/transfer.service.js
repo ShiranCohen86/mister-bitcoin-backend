@@ -4,31 +4,74 @@ const userService = require("../user/user.service");
 const ObjectId = require("mongodb").ObjectId;
 
 module.exports = {
-  query,
-  getById,
-  getByUsername,
-  remove,
-  update,
+  getTransfers,
   addTransfer,
 };
 
-async function query(filterBy = {}) {
+async function getTransfers(filterBy = {}, loggedUserId) {
   const criteria = _buildCriteria(filterBy);
   try {
-    const collection = await dbService.getCollection("user");
-    var users = await collection.find(criteria).toArray();
-    users = users.map((user) => {
-      delete user.password;
-      user.createdAt = ObjectId(user._id).getTimestamp();
-      // Returning fake fresh data
-      // user.createdAt = Date.now() - (1000 * 60 * 60 * 24 * 3) // 3 days ago
-      return user;
+    const collection = await dbService.getCollection("transfer");
+    var transfers = await collection
+      .find({
+        $or: [
+          { fromUserId: ObjectId(loggedUserId) },
+          { toUserId: ObjectId(loggedUserId) },
+        ],
+      })
+      .toArray();
+    const test = transfers.map((transfer) => {
+      transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      return transfer;
     });
-    return users;
+    return test;
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
   }
+}
+
+async function addTransfer(amount, loggedUserId, userId) {
+  try {
+    // peek only updatable fields!
+    const transferToAdd = {
+      fromUserId: ObjectId(loggedUserId),
+      toUserId: ObjectId(userId),
+      amount,
+    };
+    const collection = await dbService.getCollection("transfer");
+    await collection.insertOne(transferToAdd);
+    const contact = await userService.getById(userId);
+    const loggedUser = await userService.getById(loggedUserId);
+    contact.coins += amount;
+    loggedUser.coins -= amount;
+    await userService.update(contact);
+    await userService.update(loggedUser);
+
+    return loggedUser;
+  } catch (err) {
+    logger.error("cannot insert user", err);
+    throw err;
+  }
+}
+
+function _buildCriteria(filterBy) {
+  const criteria = {};
+  if (filterBy.txt) {
+    const txtCriteria = { $regex: filterBy.txt, $options: "i" };
+    criteria.$or = [
+      {
+        username: txtCriteria,
+      },
+      {
+        fullname: txtCriteria,
+      },
+    ];
+  }
+  if (filterBy.minBalance) {
+    criteria.balance = { $gte: filterBy.minBalance };
+  }
+  return criteria;
 }
 
 async function getById(userId) {
@@ -89,48 +132,4 @@ async function update(user) {
     logger.error(`cannot update user ${user._id}`, err);
     throw err;
   }
-}
-
-async function addTransfer(amount, loggedUserId, userId) {
-  try {
-    // peek only updatable fields!
-    const transferToAdd = {
-      fromUserId: loggedUserId,
-      toUserId: userId,
-      amount,
-      createdAT: Date.now(),
-    };
-    const collection = await dbService.getCollection("transfer");
-    await collection.insertOne(transferToAdd);
-    const contact = await userService.getById(userId);
-    const loggedUser = await userService.getById(loggedUserId);
-    contact.coins += amount;
-    loggedUser.coins -= amount;
-    await userService.update(contact);
-    await userService.update(loggedUser);
-
-    return loggedUser;
-  } catch (err) {
-    logger.error("cannot insert user", err);
-    throw err;
-  }
-}
-
-function _buildCriteria(filterBy) {
-  const criteria = {};
-  if (filterBy.txt) {
-    const txtCriteria = { $regex: filterBy.txt, $options: "i" };
-    criteria.$or = [
-      {
-        username: txtCriteria,
-      },
-      {
-        fullname: txtCriteria,
-      },
-    ];
-  }
-  if (filterBy.minBalance) {
-    criteria.balance = { $gte: filterBy.minBalance };
-  }
-  return criteria;
 }

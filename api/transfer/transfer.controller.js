@@ -19,6 +19,18 @@ async function addTransfer(req, res) {
   }
 }
 
+async function getTransfers(req, res) {
+  try {
+    const transfers = await transferService.getTransfers();
+
+    res.send(transfers);
+  } catch (err) {
+    logger.error("Failed to update user", err);
+    res.status(500).send({ err: "Failed to update user" });
+  }
+}
+
 module.exports = {
   addTransfer,
+  getTransfers,
 };

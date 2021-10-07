@@ -108,7 +108,6 @@ async function add(contact) {
     const contactToAdd = {
       fromUserId: ObjectId(contact.fromUserId),
       toUserId: ObjectId(contact._id),
-      createdAt: Date.now(),
       status: "PENDING",
       statusAt: null,
     };

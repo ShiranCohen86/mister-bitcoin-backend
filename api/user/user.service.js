@@ -1,5 +1,5 @@
 const dbService = require("../../services/db.service");
-// const logger = require('../../services/logger.service')
+const logger = require("../../services/logger.service");
 const contactService = require("../contact/contact.service");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -219,10 +219,11 @@ async function add(user) {
       coins: user.coins || 100,
       email: user.email,
       phone: user.phone,
-      createdAT: Date.now(),
     };
+
     const collection = await dbService.getCollection("user");
     await collection.insertOne(userToAdd);
+
     return userToAdd;
   } catch (err) {
     logger.error("cannot insert user", err);
