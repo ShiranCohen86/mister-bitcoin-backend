@@ -21,7 +21,8 @@ async function addTransfer(req, res) {
 
 async function getTransfers(req, res) {
   try {
-    const transfers = await transferService.getTransfers();
+    const loggedUserId = req.session.user._id;
+    const transfers = await transferService.getTransfers(loggedUserId);
 
     res.send(transfers);
   } catch (err) {

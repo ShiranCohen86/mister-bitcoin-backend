@@ -5,11 +5,13 @@ const logger = require("../../services/logger.service");
 
 async function query(filterBy = {}, loggedUserId) {
   try {
-    const contactCollection = await dbService.getCollection("contact");
+    const contactReqCollection = await dbService.getCollection(
+      "contact-request"
+    );
     const userCollection = await dbService.getCollection("user");
     // const criteria = _buildCriteria(filterBy);
     // const contacts = await collection.find(criteria).toArray();
-    var contacts = await contactCollection
+    var contactRequests = await contactReqCollection
       .find({
         $or: [
           { fromUserId: ObjectId(loggedUserId) },
@@ -18,55 +20,50 @@ async function query(filterBy = {}, loggedUserId) {
       })
       .toArray();
 
-    contacts = contacts.map(async (contact) => {
+    contactRequests = contactRequests.map(async (contactReq) => {
       var user;
-      if (contact.toUserId == loggedUserId) {
+      if (contactReq.toUserId == loggedUserId) {
         user = await userCollection.findOne({
-          _id: ObjectId(contact.fromUserId),
+          _id: ObjectId(contactReq.fromUserId),
         });
-        contact.username = user.username;
-      } else if (contact.fromUserId == loggedUserId) {
+        contactReq.username = user.username;
+      } else if (contactReq.fromUserId == loggedUserId) {
         user = await userCollection.findOne({
-          _id: ObjectId(contact.toUserId),
+          _id: ObjectId(contactReq.toUserId),
         });
       }
-      contact.username = user.username;
-      contact.phone = user.phone;
-      contact.email = user.email;
-      delete contact.fromUserId;
-      delete contact.toUserId;
-      delete contact.status;
-      delete contact.statusAt;
-      delete contact.createdAt;
+      contactReq.username = user.username;
+      contactReq.phone = user.phone;
+      contactReq.email = user.email;
+      delete contactReq.fromUserId;
+      delete contactReq.toUserId;
+      delete contactReq.status;
+      delete contactReq.statusAt;
+      delete contactReq.createdAt;
 
-      return contact;
+      return contactReq;
     });
-    return Promise.all(contacts);
+    return Promise.all(contactRequests);
   } catch (err) {
     logger.error("cannot find contacts", err);
     throw err;
   }
 }
 
-async function getById(contactId, loggedUserId) {
+async function getById(contactReqId, loggedUserId) {
   try {
-    const contactCollection = await dbService.getCollection("contact");
+    const contactReqCollection = await dbService.getCollection(
+      "contact-request"
+    );
     const userCollection = await dbService.getCollection("user");
-    const contact = await contactCollection.findOne({
-      _id: ObjectId(contactId),
+    const contactReq = await contactReqCollection.findOne({
+      _id: ObjectId(contactReqId),
     });
     const term =
-      loggedUserId == contact.toUserId ? contact.fromUserId : contact.toUserId;
-    const user = await userCollection.findOne({
-      $or: [
-        {
-          _id: ObjectId(term),
-        },
-        {
-          _id: ObjectId(term),
-        },
-      ],
-    });
+      loggedUserId == contactReq.toUserId
+        ? contactReq.fromUserId
+        : contactReq.toUserId;
+    const user = await userCollection.findOne({ _id: ObjectId(term) });
     delete user.password;
 
     return user;
@@ -86,21 +83,6 @@ async function getByUsername(username) {
     throw err;
   }
 }
-async function remove(contactId) {
-  try {
-    const store = asyncLocalStorage.getStore();
-    const { userId, isAdmin } = store;
-    const collection = await dbService.getCollection("contact");
-    // remove only if user is owner/admin
-    const query = { _id: ObjectId(contactId) };
-    if (!isAdmin) query.fromUserId = ObjectId(userId);
-    await collection.deleteOne(query);
-    // return await collection.deleteOne({ _id: ObjectId(contactId), fromUserId: ObjectId(userId) })
-  } catch (err) {
-    logger.error(`cannot remove contact ${contactId}`, err);
-    throw err;
-  }
-}
 
 async function add(contact) {
   try {
@@ -109,9 +91,9 @@ async function add(contact) {
       fromUserId: ObjectId(contact.fromUserId),
       toUserId: ObjectId(contact._id),
       status: "PENDING",
-      statusAt: null,
+      statusChangedAt: null,
     };
-    const collection = await dbService.getCollection("contact");
+    const collection = await dbService.getCollection("contact-request");
     await collection.insertOne(contactToAdd);
     return contactToAdd;
   } catch (err) {
@@ -127,7 +109,6 @@ function _buildCriteria(filterBy) {
 
 module.exports = {
   query,
-  remove,
   add,
   getByUsername,
   getById,

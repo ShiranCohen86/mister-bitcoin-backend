@@ -5,19 +5,17 @@ const {
 } = require("../../middlewares/requireAuth.middleware");
 const { log } = require("../../middlewares/logger.middleware");
 const {
-  addContact,
-  getContacts,
-  deleteContact,
-  getContactById,
-} = require("./contact.controller");
+  addContactRequest,
+  getContactRequests,
+  getContactReqById,
+} = require("./contactReq.controller");
 const router = express.Router();
 
 // middleware that is specific to this router
 // router.use(requireAuth)
 
-router.get("/", log, getContacts);
-router.get("/:id", log, getContactById);
-router.post("/", requireAuth, addContact);
-router.delete("/:id", requireAuth, deleteContact);
+router.get("/", log, getContactRequests);
+router.get("/:id", log, getContactReqById);
+router.post("/", requireAuth, addContactRequest);
 
 module.exports = router;
