@@ -35,8 +35,10 @@ async function getTransfers(loggedUserId) {
 async function getTransfersByUserId(userId, loggedUserId) {
   // const criteria = _buildCriteria(filterBy);
   try {
-    const collection = await dbService.getCollection("transfer");
-    var transfers = await collection
+    const transferCollection = await dbService.getCollection("transfer");
+    const userCollection = await dbService.getCollection("user");
+
+    var transfers = await transferCollection
       .find({
         $or: [
           {
@@ -50,11 +52,23 @@ async function getTransfersByUserId(userId, loggedUserId) {
         ],
       })
       .toArray();
-    const test = transfers.map((transfer) => {
+
+    const loggedUser = await userCollection.findOne({
+      _id: ObjectId(loggedUserId),
+    });
+    const user = await userCollection.findOne({ _id: ObjectId(userId) });
+
+    const transferToReturn = transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      transfer.fromName =
+        transfer.fromUserId == userId ? user.fullname : loggedUser.fullname;
+      transfer.toName =
+        transfer.toUserId == userId ? user.fullname : loggedUser.fullname;
+      delete transfer.fromUserId;
+      delete transfer.toUserId;
       return transfer;
     });
-    return test;
+    return transferToReturn;
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;

@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === "production") {
 
 const authRoutes = require("./api/auth/auth.routes");
 const userRoutes = require("./api/user/user.routes");
-const contactReqRoutes = require("./api/contactReq/contactReq.routes");
+const contactRoutes = require("./api/contact/contact.routes");
 const transferRoutes = require("./api/transfer/transfer.routes");
 const { connectSockets } = require("./services/socket.service");
 
@@ -50,7 +50,7 @@ app.get("/api/setup-session", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/contact", contactReqRoutes);
+app.use("/api/contact", contactRoutes);
 app.use("/api/transfer", transferRoutes);
 connectSockets(http, session);
 
