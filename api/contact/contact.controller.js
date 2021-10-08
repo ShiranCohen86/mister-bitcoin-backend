@@ -4,7 +4,7 @@ const logger = require("../../services/logger.service");
 
 async function getContact(req, res) {
   try {
-    const loggedUserId = req.session.cookie.user._id;
+    const loggedUserId = req.session.user._id;
     const contactId = req.params.id;
     const contact = await contactService.getById(contactId, loggedUserId);
     res.send(contact);
@@ -19,7 +19,7 @@ async function getContacts(req, res) {
     // const filterBy = {
     //   txt: req.query?.txt || "",
     // };
-    const loggedUserId = req.session.user._id;
+    const loggedUserId = req.session.cookie.user._id;
 
     const contacts = await contactService.query((filterBy = {}), loggedUserId);
     res.send(contacts);
