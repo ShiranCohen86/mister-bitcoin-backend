@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const expressSession = require("express-session");
-const MongoStore = require("connect-mongo")(expressSession);
+// const MongoStore = require("connect-mongo")(expressSession);
 const app = express();
 const http = require("http").createServer(app);
 
@@ -10,13 +10,13 @@ const session = expressSession({
   secret: "coding is amazing",
   resave: false,
   saveUninitialized: true,
-  store: new MongoStore({
-    url: "mongodb+srv://shiran:miko12345@cluster0.fna2u.mongodb.net/misterBitcoinDB?retryWrites=true&w=majority",
-    ttl: 14 * 24 * 60 * 60,
-    autoRemove: "native",
-  }),
-  proxy: true,
-  cookie: { secure: true },
+  // store: new MongoStore({
+  //   url: "mongodb+srv://shiran:miko12345@cluster0.fna2u.mongodb.net/misterBitcoinDB?retryWrites=true&w=majority",
+  //   ttl: 14 * 24 * 60 * 60,
+  //   autoRemove: "native",
+  // }),
+  // proxy: true,
+  cookie: { secure: false },
 });
 
 if (process.env.NODE_ENV === "production") {
@@ -47,7 +47,7 @@ const { connectSockets } = require("./services/socket.service");
 
 // routes
 const setupAsyncLocalStorage = require("./middlewares/setupAls.middleware");
-// app.all("*", setupAsyncLocalStorage);
+app.all("*", setupAsyncLocalStorage);
 
 // TODO: check with app.use
 app.get("/api/setup-session", (req, res) => {
