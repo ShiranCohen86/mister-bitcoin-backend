@@ -19,6 +19,7 @@ const session = expressSession({
   cookie: { secure: true },
 });
 
+
 if (process.env.NODE_ENV === "production") {
   // app.enable("trust proxy");
   // session.cookie.secure = true;
