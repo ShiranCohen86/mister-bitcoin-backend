@@ -10,7 +10,7 @@ const session = expressSession({
   secret: "coding is amazing",
   resave: false,
   saveUninitialized: true,
-  cookie: {},
+  cookie: { secure: false },
 });
 // Express App Config
 app.use(express.json());
@@ -18,8 +18,8 @@ app.use(session);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.resolve(__dirname, "public")));
-  app.set("trust proxy", 1);
-  session.cookie.secure = true;
+  // app.set("trust proxy", 1);
+  // session.cookie.secure = true;
 } else {
   const corsOptions = {
     origin: [
