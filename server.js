@@ -16,12 +16,12 @@ const session = expressSession({
     autoRemove: "native",
   }),
   proxy: true,
-  cookie: { secure: false },
+  cookie: { secure: true },
 });
 
 if (process.env.NODE_ENV === "production") {
   app.enable("trust proxy");
-  session.cookie.secure = true;
+  // session.cookie.secure = true;
   app.use(express.static(path.resolve(__dirname, "public")));
 } else {
   const corsOptions = {
