@@ -5,10 +5,11 @@ const expressSession = require("express-session");
 
 const app = express();
 const http = require("http").createServer(app);
-
+app.set("trust proxy", 1);
 const session = expressSession({
   secret: "coding is amazing",
   resave: false,
+  proxy: true,
   saveUninitialized: true,
   cookie: { secure: false },
 });
@@ -18,8 +19,8 @@ app.use(session);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.resolve(__dirname, "public")));
-  // app.set("trust proxy", 1);
-  // session.cookie.secure = true;
+  app.set("trust proxy", 1);
+  session.cookie.secure = true;
 } else {
   const corsOptions = {
     origin: [
