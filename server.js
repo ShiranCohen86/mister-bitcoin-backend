@@ -10,6 +10,7 @@ const session = expressSession({
   secret: "coding is amazing",
   resave: false,
   saveUninitialized: true,
+  proxy: true,
   cookie: { secure: false },
 });
 
