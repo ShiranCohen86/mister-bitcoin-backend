@@ -47,7 +47,7 @@ const { connectSockets } = require("./services/socket.service");
 
 // routes
 const setupAsyncLocalStorage = require("./middlewares/setupAls.middleware");
-app.all("*", setupAsyncLocalStorage);
+// app.all("*", setupAsyncLocalStorage);
 
 // TODO: check with app.use
 app.get("/api/setup-session", (req, res) => {
