@@ -10,7 +10,7 @@ const session = expressSession({
   secret: "coding is amazing",
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false },
+  cookie: {},
 });
 // Express App Config
 app.use(express.json());
