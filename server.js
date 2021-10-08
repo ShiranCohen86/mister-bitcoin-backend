@@ -15,7 +15,7 @@ const session = expressSession({
   resave: false,
   saveUninitialized: true,
   // store,
-  // proxy: true,
+  proxy: true,
   cookie: { secure: true },
 });
 
