@@ -18,6 +18,8 @@ app.use(session);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.resolve(__dirname, "public")));
+  app.set("trust proxy", 1);
+  session.cookie = true;
 } else {
   const corsOptions = {
     origin: [
