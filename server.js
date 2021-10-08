@@ -5,23 +5,23 @@ const expressSession = require("express-session");
 // const MongoStore = require("connect-mongo")(expressSession);
 const app = express();
 const http = require("http").createServer(app);
-
+// const store =  MongoStore({
+//   url: "mongodb+srv://shiran:miko12345@cluster0.fna2u.mongodb.net/misterBitcoinDB?retryWrites=true&w=majority",
+//   ttl: 14 * 24 * 60 * 60,
+//   autoRemove: "native",
+// });
 const session = expressSession({
   secret: "coding is amazing",
   resave: false,
   saveUninitialized: true,
-  // store: new MongoStore({
-  //   url: "mongodb+srv://shiran:miko12345@cluster0.fna2u.mongodb.net/misterBitcoinDB?retryWrites=true&w=majority",
-  //   ttl: 14 * 24 * 60 * 60,
-  //   autoRemove: "native",
-  // }),
-  // proxy: true,
-  cookie: { secure: false },
+  // store,
+  proxy: true,
+  cookie: { secure: true },
 });
 
 if (process.env.NODE_ENV === "production") {
   app.enable("trust proxy");
-  // session.cookie.secure = true;
+  session.cookie.secure = true;
   app.use(express.static(path.resolve(__dirname, "public")));
 } else {
   const corsOptions = {

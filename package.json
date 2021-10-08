@@ -6,12 +6,13 @@
     "scripts": {
         "start": "node server.js",
         "server:dev": "set NODE_ENV=development && nodemon server.js",
-        "server:prod": "node server.js"
+        "server:prod": "nodemon server.js"
     },
     "author": "Me",
     "license": "ISC",
     "dependencies": {
         "bcrypt": "^5.0.1",
+        "connect-mongo": "^4.6.0",
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "express-session": "^1.16.2",
@@ -23,4 +24,6 @@
     "devDependencies": {
         "nodemon": "^2.0.13"
     }
+
+    
 }
