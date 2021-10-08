@@ -9,14 +9,13 @@ const http = require("http").createServer(app);
 const session = expressSession({
   secret: "coding is amazing",
   resave: false,
-  proxy: true,
   saveUninitialized: true,
   cookie: { secure: false },
 });
 
 if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy", 1);
-  session.cookie.secure = true;
+  // app.set("trust proxy", 1);
+  // session.cookie.secure = true;
   app.use(express.static(path.resolve(__dirname, "public")));
 } else {
   const corsOptions = {

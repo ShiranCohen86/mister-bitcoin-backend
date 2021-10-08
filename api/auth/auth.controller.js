@@ -5,7 +5,7 @@ async function login(req, res) {
   const { username, password } = req.body;
   try {
     const user = await authService.login(username, password);
-    req.session.cookie.user = user;
+    req.session.user = user;
     res.json(user);
   } catch (err) {
     logger.error("Failed to Login " + err);
@@ -29,7 +29,7 @@ async function signup(req, res) {
       `auth.route - new account created: ` + JSON.stringify(account)
     );
     const user = await authService.login(username, password);
-    req.session.cookie.user = user;
+    req.session.user = user;
     res.json(user);
   } catch (err) {
     logger.error("Failed to signup " + err);
