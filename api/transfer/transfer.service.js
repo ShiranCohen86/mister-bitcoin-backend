@@ -6,7 +6,7 @@ const ObjectId = require("mongodb").ObjectId;
 module.exports = {
   getTransfers,
   addTransfer,
-  getTransfersByUserId,
+  getTransfersByContactId,
 };
 
 async function getTransfers(loggedUserId) {
@@ -17,8 +17,8 @@ async function getTransfers(loggedUserId) {
     const transfers = await transferCollection
       .find({
         $or: [
-          { fromUserId: ObjectId(loggedUserId) },
-          { toContactId: ObjectId(loggedUserId) },
+          { fromId: ObjectId(loggedUserId) },
+          { toId: ObjectId(loggedUserId) },
         ],
       })
       .toArray();
@@ -27,43 +27,40 @@ async function getTransfers(loggedUserId) {
       _id: ObjectId(loggedUserId),
     });
 
-    const transfersToReturn = transfers.map((transfer) => {
+    return transfers.map((transfer) => {
       const contact = loggedUser.contacts.find(
-        (contact) => contact._id.toString() === transfer.toContactId.toString()
+        (contact) => contact._id.toString() === transfer.toId.toString()
       );
 
       transfer.fromName = loggedUser.fullname;
       transfer.toName = contact.contactName;
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
-      delete transfer.fromUserId;
-      delete transfer.toContactId;
-      console.log({ transfer });
+      delete transfer.fromId;
+      delete transfer.toId;
       return transfer;
     });
-    console.log({ transfersToReturn });
-    return transfersToReturn;
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
   }
 }
 
-async function getTransfersByUserId(userId, loggedUserId) {
+async function getTransfersByContactId(contactId, loggedUserId) {
   // const criteria = _buildCriteria(filterBy);
   try {
     const transferCollection = await dbService.getCollection("transfer");
     const userCollection = await dbService.getCollection("user");
 
-    var transfers = await transferCollection
+    const transfers = await transferCollection
       .find({
         $or: [
           {
-            fromUserId: ObjectId(loggedUserId),
-            toUserId: ObjectId(userId),
+            fromId: ObjectId(loggedUserId),
+            toId: ObjectId(contactId),
           },
           {
-            fromUserId: ObjectId(userId),
-            toUserId: ObjectId(loggedUserId),
+            fromId: ObjectId(contactId),
+            toId: ObjectId(loggedUserId),
           },
         ],
       })
@@ -72,16 +69,23 @@ async function getTransfersByUserId(userId, loggedUserId) {
     const loggedUser = await userCollection.findOne({
       _id: ObjectId(loggedUserId),
     });
-    const user = await userCollection.findOne({ _id: ObjectId(userId) });
+    // const user = await userCollection.findOne({ _id: ObjectId(userId) });
+    const contact = loggedUser.contacts.find(
+      (contact) => contact._id.toString() === contactId.toString()
+    );
 
     const transferToReturn = transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
       transfer.fromName =
-        transfer.fromUserId == userId ? user.fullname : loggedUser.fullname;
+        transfer.fromId.toString() === contactId.toString()
+          ? contact.contactName
+          : loggedUser.fullname;
       transfer.toName =
-        transfer.toUserId == userId ? user.fullname : loggedUser.fullname;
-      delete transfer.fromUserId;
-      delete transfer.toUserId;
+        transfer.toId.toString() === contactId.toString()
+          ? contact.contactName
+          : loggedUser.fullname;
+      delete transfer.fromId;
+      delete transfer.toId;
       return transfer;
     });
     return transferToReturn;
@@ -95,8 +99,8 @@ async function addTransfer(amount, loggedUserId, contactId) {
   try {
     // peek only updatable fields!
     const transferToAdd = {
-      fromUserId: ObjectId(loggedUserId),
-      toContactId: ObjectId(contactId),
+      fromId: ObjectId(loggedUserId),
+      toId: ObjectId(contactId),
       amount,
     };
     const collection = await dbService.getCollection("transfer");

@@ -31,8 +31,9 @@ async function getById(contactId, loggedUserId) {
     const loggedUser = await collection.findOne({
       _id: ObjectId(loggedUserId),
     });
+
     const contact = loggedUser.contacts.find(
-      (contact) => contact._id == contactId
+      (contact) => contact._id.toString() === contactId.toString()
     );
     return contact;
   } catch (err) {

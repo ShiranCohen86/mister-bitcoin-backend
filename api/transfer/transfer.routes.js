@@ -6,7 +6,7 @@ const {
 const {
   addTransfer,
   getTransfers,
-  getTransferByUserId,
+  getTransfersByContactId,
 } = require("./transfer.controller");
 const router = express.Router();
 
@@ -14,7 +14,7 @@ const router = express.Router();
 // router.use(requireAuth)
 
 router.get("/", getTransfers);
-router.get("/:id", getTransferByUserId);
+router.get("/:id", getTransfersByContactId);
 
 router.post("/", addTransfer);
 

@@ -30,15 +30,14 @@ async function getTransfers(req, res) {
   }
 }
 
-async function getTransferByUserId(req, res) {
+async function getTransfersByContactId(req, res) {
   try {
-    const userId = req.params.id;
+    const contactId = req.params.id;
     const loggedUserId = req.session.user._id;
-    const transfers = await transferService.getTransfersByUserId(
-      userId,
+    const transfers = await transferService.getTransfersByContactId(
+      contactId,
       loggedUserId
     );
-
     res.send(transfers);
   } catch (err) {
     logger.error("Failed to update user", err);
@@ -49,5 +48,5 @@ async function getTransferByUserId(req, res) {
 module.exports = {
   addTransfer,
   getTransfers,
-  getTransferByUserId,
+  getTransfersByContactId,
 };
