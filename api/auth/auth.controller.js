@@ -53,6 +53,7 @@ async function getLoggedInUser(req, res) {
     res.status(500).send({ err: "No Loggedin User" });
   }
 }
+
 module.exports = {
   login,
   signup,

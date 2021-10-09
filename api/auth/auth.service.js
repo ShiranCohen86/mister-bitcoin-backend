@@ -30,6 +30,7 @@ async function signup(username, password, fullname, email, phone) {
   if (isEmailExist) throw "This email is already signed";
 
   const hash = await bcrypt.hash(password, saltRounds);
+  email = email.toLowerCase();
   return userService.add({ username, password: hash, fullname, email, phone });
 }
 

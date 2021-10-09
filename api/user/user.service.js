@@ -45,6 +45,7 @@ async function getById(userId) {
 }
 
 async function getByEmail(email) {
+  email = email.toLowerCase();
   try {
     const collection = await dbService.getCollection("user");
     const user = await collection.findOne({ email });
