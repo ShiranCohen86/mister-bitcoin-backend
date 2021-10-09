@@ -16,10 +16,11 @@ const session = expressSession({
   saveUninitialized: true,
   // store,
   proxy: true,
-  cookie: { secure: true },
+  cookie: { secure: false },
 });
 
 if (process.env.NODE_ENV === "production") {
+  session.cookie.secure = true;
   app.use(express.static(path.resolve(__dirname, "public")));
 } else {
   const corsOptions = {

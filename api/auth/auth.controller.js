@@ -45,7 +45,7 @@ async function logout(req, res) {
   }
 }
 
-async function getLoggedinUser(req, res) {
+async function getLoggedInUser(req, res) {
   try {
     res.json(req.session.user);
   } catch (err) {
@@ -57,5 +57,5 @@ module.exports = {
   login,
   signup,
   logout,
-  getLoggedinUser,
+  getLoggedInUser,
 };
