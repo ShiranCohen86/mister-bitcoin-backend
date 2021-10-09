@@ -155,14 +155,6 @@ async function getById(userId) {
     const user = await collection.findOne({ _id: ObjectId(userId) });
     delete user.password;
 
-    user.givenContacts = await contactService.query({
-      byUserId: ObjectId(user._id),
-    });
-    user.givenContacts = user.givenContacts.map((contact) => {
-      delete contact.byUser;
-      return contact;
-    });
-
     return user;
   } catch (err) {
     logger.error(`while finding user ${userId}`, err);
@@ -194,15 +186,10 @@ async function remove(userId) {
 async function update(user) {
   try {
     // peek only updatable fields!
-    const userToSave = {
-      _id: ObjectId(user._id),
-      username: user.username,
-      fullname: user.fullname,
-      coins: user.coins,
-    };
+
     const collection = await dbService.getCollection("user");
-    await collection.updateOne({ _id: userToSave._id }, { $set: userToSave });
-    return userToSave;
+    await collection.updateOne({ _id: user._id }, { $set: user });
+    return user;
   } catch (err) {
     logger.error(`cannot update user ${user._id}`, err);
     throw err;

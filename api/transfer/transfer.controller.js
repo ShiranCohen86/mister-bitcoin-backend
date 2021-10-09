@@ -23,7 +23,6 @@ async function getTransfers(req, res) {
   try {
     const loggedUserId = req.session.user._id;
     const transfers = await transferService.getTransfers(loggedUserId);
-
     res.send(transfers);
   } catch (err) {
     logger.error("Failed to update user", err);

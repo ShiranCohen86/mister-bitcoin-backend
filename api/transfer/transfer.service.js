@@ -1,5 +1,5 @@
 const dbService = require("../../services/db.service");
-// const logger = require('../../services/logger.service')
+const logger = require("../../services/logger.service");
 const userService = require("../user/user.service");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -12,20 +12,36 @@ module.exports = {
 async function getTransfers(loggedUserId) {
   // const criteria = _buildCriteria(filterBy);
   try {
-    const collection = await dbService.getCollection("transfer");
-    var transfers = await collection
+    const transferCollection = await dbService.getCollection("transfer");
+    const userCollection = await dbService.getCollection("user");
+    const transfers = await transferCollection
       .find({
         $or: [
           { fromUserId: ObjectId(loggedUserId) },
-          { toUserId: ObjectId(loggedUserId) },
+          { toContactId: ObjectId(loggedUserId) },
         ],
       })
       .toArray();
-    const test = transfers.map((transfer) => {
+
+    var loggedUser = await userCollection.findOne({
+      _id: ObjectId(loggedUserId),
+    });
+
+    const transfersToReturn = transfers.map((transfer) => {
+      const contact = loggedUser.contacts.find(
+        (contact) => contact._id.toString() === transfer.toContactId.toString()
+      );
+
+      transfer.fromName = loggedUser.fullname;
+      transfer.toName = contact.contactName;
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      delete transfer.fromUserId;
+      delete transfer.toContactId;
+      console.log({ transfer });
       return transfer;
     });
-    return test;
+    console.log({ transfersToReturn });
+    return transfersToReturn;
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
@@ -75,21 +91,18 @@ async function getTransfersByUserId(userId, loggedUserId) {
   }
 }
 
-async function addTransfer(amount, loggedUserId, userId) {
+async function addTransfer(amount, loggedUserId, contactId) {
   try {
     // peek only updatable fields!
     const transferToAdd = {
       fromUserId: ObjectId(loggedUserId),
-      toUserId: ObjectId(userId),
+      toContactId: ObjectId(contactId),
       amount,
     };
     const collection = await dbService.getCollection("transfer");
     await collection.insertOne(transferToAdd);
-    const contact = await userService.getById(userId);
     const loggedUser = await userService.getById(loggedUserId);
-    contact.coins += amount;
     loggedUser.coins -= amount;
-    await userService.update(contact);
     await userService.update(loggedUser);
 
     return loggedUser;
