@@ -30,6 +30,7 @@ async function signup(username, password, fullname, email, phone) {
   return userService.add({ username, password: hash, fullname, email, phone });
 }
 
+
 module.exports = {
   signup,
   login,

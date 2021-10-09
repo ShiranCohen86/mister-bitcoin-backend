@@ -6,7 +6,6 @@ async function login(req, res) {
   try {
     const user = await authService.login(username, password);
     req.session.user = user;
-    req.session.save();
     res.json(user);
   } catch (err) {
     logger.error("Failed to Login " + err);
@@ -17,8 +16,6 @@ async function login(req, res) {
 async function signup(req, res) {
   try {
     const { username, password, fullname, email, phone } = req.body;
-    // Never log passwords
-    // logger.debug(fullname + ', ' + username + ', ' + password)
     const account = await authService.signup(
       username,
       password,
@@ -31,7 +28,6 @@ async function signup(req, res) {
     );
     const user = await authService.login(username, password);
     req.session.user = user;
-    req.session.save();
 
     res.json(user);
   } catch (err) {
@@ -49,8 +45,17 @@ async function logout(req, res) {
   }
 }
 
+async function getLoggedinUser(req, res) {
+  try {
+    res.json(req.session.user);
+  } catch (err) {
+    logger.error("Failed to signup " + err);
+    res.status(500).send({ err: "No Loggedin User" });
+  }
+}
 module.exports = {
   login,
   signup,
   logout,
+  getLoggedinUser,
 };
