@@ -3,128 +3,10 @@ const logger = require("../../services/logger.service");
 const contactService = require("../contact/contact.service");
 const ObjectId = require("mongodb").ObjectId;
 
-const gContacts = [
-  {
-    _id: "5a56640269f443a5d64b32ca",
-    contactName: "Ochoa Hyde",
-    contactEmail: "ochoahyde@renovize.com",
-    contactPhone: "+1 (968) 593-3824",
-  },
-  {
-    _id: "5a5664025f6ae9aa24a99fde",
-    contactName: "Hallie Mclean",
-    contactEmail: "halliemclean@renovize.com",
-    contactPhone: "+1 (948) 464-2888",
-  },
-  {
-    _id: "5a56640252d6acddd183d319",
-    contactName: "Parsons Norris",
-    contactEmail: "parsonsnorris@renovize.com",
-    contactPhone: "+1 (958) 502-3495",
-  },
-  {
-    _id: "5a566402ed1cf349f0b47b4d",
-    contactName: "Rachel Lowe",
-    contactEmail: "rachellowe@renovize.com",
-    contactPhone: "+1 (911) 475-2312",
-  },
-  {
-    _id: "5a566402abce24c6bfe4699d",
-    contactName: "Dominique Soto",
-    contactEmail: "dominiquesoto@renovize.com",
-    contactPhone: "+1 (807) 551-3258",
-  },
-  {
-    _id: "5a566402a6499c1d4da9220a",
-    contactName: "Shana Pope",
-    contactEmail: "shanapope@renovize.com",
-    contactPhone: "+1 (970) 527-3082",
-  },
-  {
-    _id: "5a566402f90ae30e97f990db",
-    contactName: "Faulkner Flores",
-    contactEmail: "faulknerflores@renovize.com",
-    contactPhone: "+1 (952) 501-2678",
-  },
-  {
-    _id: "5a5664027bae84ef280ffbdf",
-    contactName: "Holder Bean",
-    contactEmail: "holderbean@renovize.com",
-    contactPhone: "+1 (989) 503-2663",
-  },
-  {
-    _id: "5a566402e3b846c5f6aec652",
-    contactName: "Rosanne Shelton",
-    contactEmail: "rosanneshelton@renovize.com",
-    contactPhone: "+1 (968) 454-3851",
-  },
-  {
-    _id: "5a56640272c7dcdf59c3d411",
-    contactName: "Pamela Nolan",
-    contactEmail: "pamelanolan@renovize.com",
-    contactPhone: "+1 (986) 545-2166",
-  },
-  {
-    _id: "5a5664029a8dd82a6178b15f",
-    contactName: "Roy Cantu",
-    contactEmail: "roycantu@renovize.com",
-    contactPhone: "+1 (929) 571-2295",
-  },
-  {
-    _id: "5a5664028c096d08eeb13a8a",
-    contactName: "Ollie Christian",
-    contactEmail: "olliechristian@renovize.com",
-    contactPhone: "+1 (977) 419-3550",
-  },
-  {
-    _id: "5a5664026c53582bb9ebe9d1",
-    contactName: "Nguyen Walls",
-    contactEmail: "nguyenwalls@renovize.com",
-    contactPhone: "+1 (963) 471-3181",
-  },
-  {
-    _id: "5a56640298ab77236845b82b",
-
-    contactName: "Glenna Santana",
-    contactEmail: "glennasantana@renovize.com",
-    contactPhone: "+1 (860) 467-2376",
-  },
-  {
-    _id: "5a56640208fba3e8ecb97305",
-    contactName: "Malone Clark",
-    contactEmail: "maloneclark@renovize.com",
-    contactPhone: "+1 (818) 565-2557",
-  },
-  {
-    _id: "5a566402abb3146207bc4ec5",
-    contactName: "Floyd Rutledge",
-    contactEmail: "floydrutledge@renovize.com",
-    contactPhone: "+1 (807) 597-3629",
-  },
-  {
-    _id: "5a56640298500fead8cb1ee5",
-    contactName: "Grace James",
-    contactEmail: "gracejames@renovize.com",
-    contactPhone: "+1 (959) 525-2529",
-  },
-  {
-    _id: "5a56640243427b8f8445231e",
-    contactName: "Tanner Gates",
-    contactEmail: "tannergates@renovize.com",
-    contactPhone: "+1 (978) 591-2291",
-  },
-  {
-    _id: "5a5664025c3abdad6f5e098c",
-    contactName: "Lilly Conner",
-    contactEmail: "lillyconner@renovize.com",
-    contactPhone: "+1 (842) 587-3812",
-  },
-];
-
 module.exports = {
   query,
   getById,
-  getByUsername,
+  getByEmail,
   remove,
   update,
   add,
@@ -162,13 +44,13 @@ async function getById(userId) {
   }
 }
 
-async function getByUsername(username) {
+async function getByEmail(email) {
   try {
     const collection = await dbService.getCollection("user");
-    const user = await collection.findOne({ username });
+    const user = await collection.findOne({ email });
     return user;
   } catch (err) {
-    logger.error(`while finding user ${username}`, err);
+    logger.error(`while finding email ${email}`, err);
     throw err;
   }
 }
