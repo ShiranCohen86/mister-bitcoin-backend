@@ -23,7 +23,6 @@ async function signup(req, res) {
       email,
       phone
     );
-    console.log({account});
     logger.debug(
       `auth.route - new account created: ` + JSON.stringify(account)
     );

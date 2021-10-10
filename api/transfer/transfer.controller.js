@@ -5,12 +5,12 @@ const logger = require("../../services/logger.service");
 async function addTransfer(req, res) {
   try {
     const { amount } = req.body;
-    const { contactId } = req.body;
-    const loggedUserId = req.session.user._id;
+    const { contactEmail } = req.body;
+    const loggedUserEmail = req.session.user.email;
     const transfer = await transferService.addTransfer(
       amount,
-      loggedUserId,
-      contactId
+      loggedUserEmail,
+      contactEmail
     );
     res.send(transfer);
   } catch (err) {

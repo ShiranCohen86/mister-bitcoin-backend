@@ -37,7 +37,7 @@ async function getById(contactId, loggedUserId) {
     );
     return contact;
   } catch (err) {
-    logger.error(`while finding user ${userId}`, err);
+    logger.error(`while finding user ${contactId}`, err);
     throw err;
   }
 }
