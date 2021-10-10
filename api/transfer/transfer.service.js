@@ -26,12 +26,10 @@ async function getTransfers(loggedUserId) {
     var loggedUser = await userCollection.findOne({
       _id: ObjectId(loggedUserId),
     });
-
     return transfers.map((transfer) => {
       const contact = loggedUser.contacts.find(
         (contact) => contact._id.toString() === transfer.toId.toString()
       );
-
       transfer.fromName = loggedUser.fullname;
       transfer.toName = contact.contactName;
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
