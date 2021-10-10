@@ -23,10 +23,11 @@ async function signup(req, res) {
       email,
       phone
     );
+    console.log({account});
     logger.debug(
       `auth.route - new account created: ` + JSON.stringify(account)
     );
-    const user = await authService.login(username, password);
+    const user = await authService.login(email, password);
     req.session.user = user;
 
     res.json(user);

@@ -75,7 +75,6 @@ async function add(contact, loggedUserId) {
   try {
     const collection = await dbService.getCollection("user");
     const user = await collection.findOne({ _id: ObjectId(loggedUserId) });
-
     contact._id = ObjectId();
     user.contacts.push(contact);
     return await collection.updateOne({ _id: user._id }, { $set: user });
