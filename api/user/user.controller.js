@@ -13,13 +13,11 @@ async function getUser(req, res) {
 }
 
 async function getLoggedInUser(req, res) {
-  try {
-    const loggedInUserId = req.session.user._id;
-    const updatedLoggedUser = await userService.getById(loggedInUserId);
+  var loggedInUserId;
+  if (req.session.user) {
+    loggedInUserId = req.session.user._id;
+    updatedLoggedUser = await userService.getById(loggedInUserId);
     res.json(updatedLoggedUser);
-  } catch (err) {
-    logger.error("Failed to signup " + err);
-    res.status(500).send({ err: "No Loggedin User" });
   }
 }
 
