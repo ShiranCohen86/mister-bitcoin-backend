@@ -83,7 +83,6 @@ async function add(user) {
   try {
     // peek only updatable fields!
     const userToAdd = {
-      username: user.username,
       password: user.password,
       fullname: user.fullname,
       coins: user.coins || 100,
@@ -107,9 +106,9 @@ function _buildCriteria(filterBy) {
   if (filterBy.txt) {
     const txtCriteria = { $regex: filterBy.txt, $options: "i" };
     criteria.$or = [
-      {
-        username: txtCriteria,
-      },
+      // {
+      //   username: txtCriteria,
+      // },
       {
         fullname: txtCriteria,
       },

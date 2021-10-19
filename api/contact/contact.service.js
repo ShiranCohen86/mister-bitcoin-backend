@@ -91,9 +91,9 @@ function _buildCriteria(filterBy) {
   if (filterBy.txt) {
     const txtCriteria = { $regex: filterBy.txt, $options: "i" };
     criteria.$or = [
-      {
-        username: txtCriteria,
-      },
+      // {
+      //   username: txtCriteria,
+      // },
       {
         fullname: txtCriteria,
       },

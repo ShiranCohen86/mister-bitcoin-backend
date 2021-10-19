@@ -16,14 +16,8 @@ async function login(req, res) {
 
 async function signup(req, res) {
   try {
-    const { username, password, fullname, email, phone } = req.body;
-    const account = await authService.signup(
-      username,
-      password,
-      fullname,
-      email,
-      phone
-    );
+    const { password, fullname, email, phone } = req.body;
+    const account = await authService.signup(password, fullname, email, phone);
     logger.debug(
       `auth.route - new account created: ` + JSON.stringify(account)
     );
@@ -46,11 +40,8 @@ async function logout(req, res) {
   }
 }
 
-
-
 module.exports = {
   login,
   signup,
   logout,
-  
 };

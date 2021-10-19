@@ -15,23 +15,21 @@ async function login(email, password) {
   return user;
 }
 
-async function signup(username, password, fullname, email, phone) {
+async function signup(password, fullname, email, phone) {
   const saltRounds = 10;
 
   logger.debug(
     `auth.service - signup with email: ${email}, fullname: ${fullname}`
   );
-  if (!username || !password || !fullname || !email || !phone)
-    return Promise.reject(
-      "fullname, username, email, phone and password are required!"
-    );
+  if (!password || !fullname || !email || !phone)
+    return Promise.reject("fullname, email, phone and password are required!");
   const isEmailExist = await userService.getByEmail(email);
   // if (isEmailExist) return Promise.reject("This email is already signed");
   if (isEmailExist) throw "This email is already signed";
 
   const hash = await bcrypt.hash(password, saltRounds);
   email = email.toLowerCase();
-  return userService.add({ username, password: hash, fullname, email, phone });
+  return userService.add({ password: hash, fullname, email, phone });
 }
 
 module.exports = {
