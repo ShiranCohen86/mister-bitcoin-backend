@@ -22,6 +22,9 @@ async function getTransfers(loggedUserId) {
       .toArray();
     return transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      // transfer.createdAt = new Date(
+      //   parseInt(transfer._id.toString().substring(0, 8), 16) * 1000
+      // );
       return transfer;
     });
   } catch (err) {
