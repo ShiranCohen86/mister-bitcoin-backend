@@ -4,12 +4,8 @@ const logger = require("../../services/logger.service");
 
 async function getContact(req, res) {
   try {
-
-    console.log(req.session.user);
     const loggedUserId = req.session.user._id;
-    console.log({loggedUserId});
     const contactId = req.params.id;
-    console.log({contactId});
     const contact = await contactService.getById(contactId, loggedUserId);
     res.send(contact);
   } catch (err) {

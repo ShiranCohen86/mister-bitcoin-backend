@@ -20,13 +20,12 @@ async function getTransfers(loggedUserId) {
         $or: [{ from: loggedUser.email }, { to: loggedUser.email }],
       })
       .toArray();
-    return transfers.map((transfer) => {
+    const transferToReturn = transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
-      // transfer.createdAt = new Date(
-      //   parseInt(transfer._id.toString().substring(0, 8), 16) * 1000
-      // );
+
       return transfer;
     });
+    return _sortByDate(transferToReturn);
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
@@ -66,7 +65,7 @@ async function getTransfersByContactId(contactId, loggedUserId) {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
       return transfer;
     });
-    return transferToReturn;
+    return _sortByDate(transferToReturn);
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
@@ -118,3 +117,9 @@ function _buildCriteria(filterBy) {
   }
   return criteria;
 }
+
+const _sortByDate = (transfers) => {
+  return transfers.sort((a, b) => {
+    return a.createdAt > b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0;
+  });
+};
