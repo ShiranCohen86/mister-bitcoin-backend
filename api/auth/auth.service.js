@@ -6,10 +6,10 @@ async function login(email, password) {
   logger.debug(`auth.service - login with email: ${email}`);
 
   const user = await userService.getByEmail(email);
-  if (!user) return Promise.reject("Invalid email or password");
+  if (!user) return Promise.reject("Invalid email");
   // TODO: un-comment for real login
   const match = await bcrypt.compare(password, user.password);
-  if (!match) return Promise.reject("Invalid email or password");
+  if (!match) return Promise.reject("Invalid password");
 
   delete user.password;
   return user;

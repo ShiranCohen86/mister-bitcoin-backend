@@ -10,7 +10,8 @@ async function login(req, res) {
     res.json(user);
   } catch (err) {
     logger.error("Failed to Login " + err);
-    res.status(401).send({ err: "Failed to Login" });
+    res.status(401).send(err);
+    // res.status(401).send({ err: "Failed to Login" });
   }
 }
 
@@ -39,6 +40,8 @@ async function logout(req, res) {
     res.status(500).send({ err: "Failed to logout" });
   }
 }
+
+
 
 module.exports = {
   login,
