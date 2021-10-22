@@ -64,7 +64,7 @@ async function update(contact, loggedUserId) {
     loggedUser.contacts.splice(idx, 1, contact);
 
     await collection.updateOne({ _id: loggedUser._id }, { $set: loggedUser });
-    return contact;
+    return loggedUser;
   } catch (err) {
     logger.error(`cannot update user ${user._id}`, err);
     throw err;
@@ -74,12 +74,15 @@ async function update(contact, loggedUserId) {
 async function add(contact, loggedUserId) {
   try {
     const collection = await dbService.getCollection("user");
-    const user = await collection.findOne({ _id: ObjectId(loggedUserId) });
+    const loggedUser = await collection.findOne({
+      _id: ObjectId(loggedUserId),
+    });
 
     // contact._id = ObjectId();
     contact._id = utilService.makeId();
-    user.contacts.push(contact);
-    return await collection.updateOne({ _id: user._id }, { $set: user });
+    loggedUser.contacts.push(contact);
+    await collection.updateOne({ _id: loggedUser._id }, { $set: loggedUser });
+    return loggedUser;
   } catch (err) {
     logger.error("cannot insert user", err);
     throw err;

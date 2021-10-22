@@ -34,7 +34,7 @@ async function addContact(req, res) {
     var contact = req.body;
     const loggedUserId = req.session.user._id;
 
-    contact = await contactService.add(contact, loggedUserId);
+    const updatedUser = await contactService.add(contact, loggedUserId);
     // console.log("CTRL SessionId:", req.sessionID);
     // socketService.broadcast({ type: "contact-added", data: contact });
     // socketService.emitToAll({
@@ -42,7 +42,7 @@ async function addContact(req, res) {
     //   data: contact.byUser,
     //   room: req.session.user._id,
     // });
-    res.send(contact);
+    res.send(updatedUser);
   } catch (err) {
     console.log(err);
     logger.error("Failed to add contact", err);
@@ -66,8 +66,8 @@ async function updateContact(req, res) {
     const contact = req.body;
     const loggedUserId = req.session.user._id;
 
-    const updatedContact = await contactService.update(contact, loggedUserId);
-    res.send(updatedContact);
+    const updatedUser = await contactService.update(contact, loggedUserId);
+    res.send(updatedUser);
     // socketService.broadcast({
     //   type: "contact-updated",
     //   data: contact,

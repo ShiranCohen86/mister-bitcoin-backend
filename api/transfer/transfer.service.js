@@ -92,7 +92,7 @@ async function addTransfer(amount, loggedUserEmail, contactEmail) {
       isUser.coins += amount;
       await userService.update(isUser);
     }
-    return loggedUser;
+    return transferToAdd;
   } catch (err) {
     logger.error("cannot insert user", err);
     throw err;
