@@ -59,6 +59,17 @@ async function updateUser(req, res) {
     res.status(500).send({ err: "Failed to update user" });
   }
 }
+async function isMailSigned(req, res) {
+  try {
+    const { email } = req.params;
+    const user = await userService.getByEmail(email);
+    if (user) res.send(true);
+    else res.send(false);
+  } catch (err) {
+    logger.error(err);
+    res.status(500).send(err);
+  }
+}
 
 module.exports = {
   getUser,
@@ -66,4 +77,5 @@ module.exports = {
   deleteUser,
   updateUser,
   getLoggedInUser,
+  isMailSigned,
 };

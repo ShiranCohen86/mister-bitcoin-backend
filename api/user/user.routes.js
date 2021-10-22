@@ -9,6 +9,7 @@ const {
   deleteUser,
   updateUser,
   getLoggedInUser,
+  isMailSigned
 } = require("./user.controller");
 const router = express.Router();
 
@@ -16,7 +17,8 @@ const router = express.Router();
 // router.use(requireAuth)
 
 router.get("/", getUsers);
-router.get("/:loggedInUser", getLoggedInUser);
+router.get("/loggedInUser", getLoggedInUser);
+router.get("/:email", isMailSigned);
 router.get("/:id", getUser);
 router.put("/:id", updateUser);
 
