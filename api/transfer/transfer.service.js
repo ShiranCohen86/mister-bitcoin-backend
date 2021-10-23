@@ -11,7 +11,6 @@ module.exports = {
 };
 
 async function getTransfers(loggedUserId) {
-  // const criteria = _buildCriteria(filterBy);
   try {
     const transferCollection = await dbService.getCollection("transfer");
     const loggedUser = await userService.getById(loggedUserId);
@@ -25,6 +24,9 @@ async function getTransfers(loggedUserId) {
 
       return transfer;
     });
+    if (!transferToReturn.length) {
+      return null;
+    }
     return _sortByDate(transferToReturn);
   } catch (err) {
     logger.error("cannot find users", err);
@@ -97,25 +99,6 @@ async function addTransfer(amount, loggedUserEmail, contactEmail) {
     logger.error("cannot insert user", err);
     throw err;
   }
-}
-
-function _buildCriteria(filterBy) {
-  const criteria = {};
-  if (filterBy.txt) {
-    const txtCriteria = { $regex: filterBy.txt, $options: "i" };
-    criteria.$or = [
-      // {
-      //   username: txtCriteria,
-      // },
-      {
-        fullname: txtCriteria,
-      },
-    ];
-  }
-  if (filterBy.minBalance) {
-    criteria.balance = { $gte: filterBy.minBalance };
-  }
-  return criteria;
 }
 
 const _sortByDate = (transfers) => {
