@@ -2,18 +2,20 @@ const transferService = require("./transfer.service");
 const socketService = require("../../services/socket.service");
 const logger = require("../../services/logger.service");
 
-
 async function addTransfer(req, res) {
   try {
-    const { amount } = req.body;
+    const { transferAmount } = req.body;
     const { contactEmail } = req.body;
     const loggedUserEmail = req.session.user.email;
-    const transfer = await transferService.addTransfer(
-      amount,
+    const loggedUserCoins = req.session.user.coins;
+    const { newTransfer, updatedUser } = await transferService.addTransfer(
+      transferAmount,
       loggedUserEmail,
-      contactEmail
+      contactEmail,
+      loggedUserCoins
     );
-    res.send(transfer);
+    req.session.user = updatedUser;
+    res.send({ newTransfer, updatedUser });
   } catch (err) {
     logger.error("Failed to update user", err);
     res.status(500).send({ err: "Failed to update user" });

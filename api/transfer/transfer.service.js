@@ -74,27 +74,33 @@ async function getTransfersByContactId(contactId, loggedUserId) {
   }
 }
 
-async function addTransfer(amount, loggedUserEmail, contactEmail) {
+async function addTransfer(
+  transferAmount,
+  loggedUserEmail,
+  contactEmail,
+  loggedUserCoins
+) {
   try {
     // peek only updatable fields!
-    const transferToAdd = {
+    const newTransfer = {
       from: loggedUserEmail,
       to: contactEmail,
-      amount,
+      updatedUserAmount: loggedUserCoins - transferAmount,
+      transferAmount,
     };
     const collection = await dbService.getCollection("transfer");
-    await collection.insertOne(transferToAdd);
+    await collection.insertOne(newTransfer);
 
-    const loggedUser = await userService.getByEmail(loggedUserEmail);
-    loggedUser.coins -= amount;
-    await userService.update(loggedUser);
+    const updatedUser = await userService.getByEmail(loggedUserEmail);
+    updatedUser.coins -= transferAmount;
+    await userService.update(updatedUser);
 
     const isUser = await userService.getByEmail(contactEmail);
     if (isUser) {
-      isUser.coins += amount;
+      isUser.coins += transferAmount;
       await userService.update(isUser);
     }
-    return transferToAdd;
+    return { newTransfer, updatedUser };
   } catch (err) {
     logger.error("cannot insert user", err);
     throw err;
