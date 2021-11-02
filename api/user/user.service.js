@@ -10,6 +10,8 @@ module.exports = {
   remove,
   update,
   add,
+  getHeaderDetails,
+  getBalance,
 };
 
 async function query(filterBy = {}) {
@@ -36,8 +38,36 @@ async function getById(userId) {
     const collection = await dbService.getCollection("user");
     const user = await collection.findOne({ _id: ObjectId(userId) });
     delete user.password;
+    user.contactsLength = user.contacts.length;
+    delete user.contacts;
 
     return user;
+  } catch (err) {
+    logger.error(`while finding user ${userId}`, err);
+    throw err;
+  }
+}
+
+async function getHeaderDetails(userId) {
+  try {
+    const collection = await dbService.getCollection("user");
+    const user = await collection.findOne({ _id: ObjectId(userId) });
+    // const test = await collection.find(
+    //   { _id: ObjectId(userId) }.project({ coins: 1, fullname: 1 })
+    // );
+
+    return { balance: user.coins, fullname: user.fullname };
+  } catch (err) {
+    logger.error(`while finding user ${userId}`, err);
+    throw err;
+  }
+}
+async function getBalance(userId) {
+  try {
+    const collection = await dbService.getCollection("user");
+    const user = await collection.findOne({ _id: ObjectId(userId) });
+
+    return user.coins;
   } catch (err) {
     logger.error(`while finding user ${userId}`, err);
     throw err;

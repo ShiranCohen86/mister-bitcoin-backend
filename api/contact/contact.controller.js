@@ -4,7 +4,7 @@ const logger = require("../../services/logger.service");
 
 async function getContact(req, res) {
   try {
-    const loggedUserId = req.session.user._id;
+    const loggedUserId = req.session.userId;
     const contactId = req.params.id;
     const contact = await contactService.getById(contactId, loggedUserId);
     res.send(contact);
@@ -19,8 +19,7 @@ async function getContacts(req, res) {
     // const filterBy = {
     //   txt: req.query?.txt || "",
     // };
-    const loggedUserId = req.session.user._id;
-
+    const loggedUserId = req.session.userId;
     const contacts = await contactService.query((filterBy = {}), loggedUserId);
     res.send(contacts);
   } catch (err) {
@@ -32,7 +31,7 @@ async function getContacts(req, res) {
 async function addContact(req, res) {
   try {
     var contact = req.body;
-    const loggedUserId = req.session.user._id;
+    const loggedUserId = req.session.userId;
 
     const updatedUser = await contactService.add(contact, loggedUserId);
     // console.log("CTRL SessionId:", req.sessionID);
@@ -64,7 +63,7 @@ async function deleteContact(req, res) {
 async function updateContact(req, res) {
   try {
     const contact = req.body;
-    const loggedUserId = req.session.user._id;
+    const loggedUserId = req.session.userId;
 
     const updatedUser = await contactService.update(contact, loggedUserId);
     res.send(updatedUser);

@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const userService = require("../user/user.service");
 const logger = require("../../services/logger.service");
+const { use } = require("./auth.routes");
 
 async function login(email, password) {
   logger.debug(`auth.service - login with email: ${email}`);
@@ -10,8 +11,10 @@ async function login(email, password) {
   // TODO: un-comment for real login
   const match = await bcrypt.compare(password, user.password);
   if (!match) return Promise.reject("Invalid password");
-
   delete user.password;
+  user.contactsLength = user.contacts.length;
+  delete user.contacts;
+
   return user;
 }
 

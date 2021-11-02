@@ -6,16 +6,14 @@ async function addTransfer(req, res) {
   try {
     const { transferAmount } = req.body;
     const { contactEmail } = req.body;
-    const loggedUserEmail = req.session.user.email;
-    const loggedUserCoins = req.session.user.coins;
-    const { newTransfer, updatedUser } = await transferService.addTransfer(
+    const { loggedUserEmail } = req.body;
+
+    const transfer = await transferService.addTransfer(
       transferAmount,
       loggedUserEmail,
-      contactEmail,
-      loggedUserCoins
+      contactEmail
     );
-    req.session.user = updatedUser;
-    res.send({ newTransfer, updatedUser });
+    res.send(transfer);
   } catch (err) {
     logger.error("Failed to update user", err);
     res.status(500).send({ err: "Failed to update user" });
@@ -24,7 +22,7 @@ async function addTransfer(req, res) {
 
 async function getTransfers(req, res) {
   try {
-    const loggedUserId = req.session.user._id;
+    const loggedUserId = req.session.userId;
     const transfers = await transferService.getTransfers(loggedUserId);
     res.send(transfers);
   } catch (err) {

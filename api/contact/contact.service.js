@@ -33,7 +33,7 @@ async function getById(contactId, loggedUserId) {
     });
 
     const contact = loggedUser.contacts.find(
-      (contact) => contact._id.toString() === contactId.toString()
+      (contact) => contact._id === contactId
     );
     return contact;
   } catch (err) {
@@ -64,7 +64,7 @@ async function update(contact, loggedUserId) {
     loggedUser.contacts.splice(idx, 1, contact);
 
     await collection.updateOne({ _id: loggedUser._id }, { $set: loggedUser });
-    return loggedUser;
+    return contact;
   } catch (err) {
     logger.error(`cannot update user ${user._id}`, err);
     throw err;
@@ -80,9 +80,9 @@ async function add(contact, loggedUserId) {
 
     // contact._id = ObjectId();
     contact._id = utilService.makeId();
-    loggedUser.contacts.push(contact);
+    loggedUser.contacts.unshift(contact);
     await collection.updateOne({ _id: loggedUser._id }, { $set: loggedUser });
-    return loggedUser;
+    return contact;
   } catch (err) {
     logger.error("cannot insert user", err);
     throw err;

@@ -13,9 +13,9 @@ async function getUser(req, res) {
 }
 
 async function getLoggedInUser(req, res) {
-  var loggedInUserId;
-  if (req.session.user) {
-    loggedInUserId = req.session.user._id;
+  let loggedInUserId;
+  if (req.session.userId) {
+    loggedInUserId = req.session.userId;
     updatedLoggedUser = await userService.getById(loggedInUserId);
     res.json(updatedLoggedUser);
   }
@@ -32,6 +32,7 @@ async function getUsers(req, res) {
     logger.error("Failed to get users", err);
     res.status(500).send({ err: "Failed to get users" });
   }
+  
 }
 
 async function deleteUser(req, res) {

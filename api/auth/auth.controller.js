@@ -6,7 +6,8 @@ async function login(req, res) {
   try {
     const user = await authService.login(email, password);
 
-    req.session.user = user;
+    req.session.userId = user._id;
+
     res.json(user);
   } catch (err) {
     logger.error("Failed to Login " + err);
@@ -22,7 +23,7 @@ async function signup(req, res) {
       `auth.route - new account created: ` + JSON.stringify(account)
     );
     const user = await authService.login(email, password);
-    req.session.user = user;
+    req.session.userId = user._id;
 
     res.json(user);
   } catch (err) {
@@ -39,8 +40,6 @@ async function logout(req, res) {
     res.status(500).send({ err: "Failed to logout" });
   }
 }
-
-
 
 module.exports = {
   login,

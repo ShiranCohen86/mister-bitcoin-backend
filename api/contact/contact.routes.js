@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.get("/", log, getContacts);
 router.get("/:id", log, getContact);
-router.post("/", requireAuth, addContact);
+router.post("/", addContact);
 router.put("/:id", updateContact);
 
 router.delete("/:id", requireAuth, requireAdmin, deleteContact);

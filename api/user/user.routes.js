@@ -9,9 +9,10 @@ const {
   deleteUser,
   updateUser,
   getLoggedInUser,
-  isMailSigned
+  isMailSigned,
 } = require("./user.controller");
 const router = express.Router();
+
 
 // middleware that is specific to this router
 // router.use(requireAuth)
@@ -21,6 +22,7 @@ router.get("/loggedInUser", getLoggedInUser);
 router.get("/:email", isMailSigned);
 router.get("/:id", getUser);
 router.put("/:id", updateUser);
+
 
 // router.put('/:id',  requireAuth, updateUser)
 router.delete("/:id", requireAuth, requireAdmin, deleteUser);
