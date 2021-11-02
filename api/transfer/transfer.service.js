@@ -1,7 +1,6 @@
 const dbService = require("../../services/db.service");
 const logger = require("../../services/logger.service");
 const userService = require("../user/user.service");
-const contactService = require("../contact/contact.service");
 const ObjectId = require("mongodb").ObjectId;
 
 module.exports = {
@@ -82,22 +81,24 @@ async function addTransfer(transferAmount, loggedUserEmail, contactEmail) {
     updatedUser.coins -= transferAmount;
     updatedUser = await userService.update(updatedUser);
 
+    let newTransfer = {
+      from: loggedUserEmail,
+      to: contactEmail,
+      fromBalance: updatedUser.coins,
+      transferAmount,
+    };
+
     const isUser = await userService.getByEmail(contactEmail);
     if (isUser) {
       isUser.coins += transferAmount;
       await userService.update(isUser);
+      newTransfer.toBalance = isUser.coins;
     }
-
-    let newTransfer = {
-      from: loggedUserEmail,
-      to: contactEmail,
-      updatedUserBalance: updatedUser.coins,
-      transferAmount,
-    };
 
     const collection = await dbService.getCollection("transfer");
     await collection.insertOne(newTransfer);
-    delete newTransfer.updatedUserBalance;
+    delete newTransfer.fromBalance;
+    delete newTransfer.toBalance;
     return newTransfer;
   } catch (err) {
     logger.error("cannot insert user", err);
