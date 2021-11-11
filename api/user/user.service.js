@@ -119,6 +119,7 @@ async function add(user) {
       email: user.email,
       phone: user.phone,
       contacts: [],
+      img: user.img || "",
     };
 
     const collection = await dbService.getCollection("user");
