@@ -39,7 +39,7 @@ async function getById(userId) {
     const user = await collection.findOne({ _id: ObjectId(userId) });
     delete user.password;
     user.contactsLength = user.contacts.length;
-    delete user.contacts;
+    // delete user.contacts;
 
     return user;
   } catch (err) {
@@ -99,7 +99,7 @@ async function remove(userId) {
 async function update(user) {
   try {
     // peek only updatable fields!
-    console.log({ user });
+    // console.log({ user });
 
     const collection = await dbService.getCollection("user");
     user._id = ObjectId(user._id);

@@ -6,66 +6,84 @@ const ObjectId = require("mongodb").ObjectId;
 module.exports = {
   getTransfers,
   addTransfer,
-  getTransfersByContactId,
+  getTransfersByContactEmail,
 };
 
 async function getTransfers(loggedUserId) {
   try {
     const transferCollection = await dbService.getCollection("transfer");
-    const loggedUser = await userService.getById(loggedUserId);
     const transfers = await transferCollection
       .find({
-        $or: [{ from: loggedUser.email }, { to: loggedUser.email }],
+        $or: [{ from: ObjectId(loggedUserId) }, { to: ObjectId(loggedUserId) }],
       })
       .toArray();
-    const transferToReturn = transfers.map((transfer) => {
+
+    const transferToReturn = transfers.map(async (transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
 
+      if (loggedUserId === transfer.from.toString()) {
+        const transactionUser = await userService.getById(transfer.to);
+        transfer.to = transactionUser.fullname;
+        transfer.toImg = transactionUser.img;
+        delete transfer.from;
+      } else {
+        const transactionUser = await userService.getById(transfer.from);
+        transfer.from = transactionUser.fullname;
+        transfer.fromImg = transactionUser.img;
+        delete transfer.to;
+      }
       return transfer;
     });
-    if (!transferToReturn.length) {
-      return null;
-    }
-    return _sortByDate(transferToReturn);
+
+    return Promise.all(transferToReturn).then((transfers) => {
+      if (!transfers.length) {
+        return null;
+      }
+      return _sortByDate(transfers);
+    });
   } catch (err) {
     logger.error("cannot find users", err);
     throw err;
   }
 }
 
-async function getTransfersByContactId(contactId, loggedUserId) {
+async function getTransfersByContactEmail(contactEmail, loggedUserId) {
   // const criteria = _buildCriteria(filterBy);
   try {
     const transferCollection = await dbService.getCollection("transfer");
-    const userCollection = await dbService.getCollection("user");
 
-    const loggedUser = await userCollection.findOne({
-      _id: ObjectId(loggedUserId),
-    });
-    const contact = loggedUser.contacts.find(
-      (contact) => contact._id == contactId
-    );
+    const isUser = await userService.getByEmail(contactEmail);
 
     const transfers = await transferCollection
       .find({
         $or: [
           {
-            from: loggedUser.email,
-            to: contact.contactEmail,
+            from: ObjectId(loggedUserId),
+            to: isUser._id,
           },
           {
-            from: contact.contactEmail,
-            to: loggedUser.email,
+            from: isUser._id,
+            to: ObjectId(loggedUserId),
           },
         ],
       })
       .toArray();
-    // const user = await userCollection.findOne({ _id: ObjectId(userId) });
-
+    console.log({ transfers });
+    console.log({ isUser });
     const transferToReturn = transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
+      if (loggedUserId === transfer.from.toString()) {
+        transfer.to = isUser.fullname;
+        transfer.toImg = isUser.img;
+        delete transfer.from;
+      } else {
+        transfer.from = isUser.fullname;
+        transfer.fromImg = isUser.img;
+        delete transfer.to;
+      }
       return transfer;
     });
+    console.log({ transferToReturn });
     return _sortByDate(transferToReturn);
   } catch (err) {
     logger.error("cannot find users", err);
@@ -73,30 +91,36 @@ async function getTransfersByContactId(contactId, loggedUserId) {
   }
 }
 
-async function addTransfer(transferAmount, loggedUserEmail, contactEmail) {
+async function addTransfer(transferAmount, loggedUserId, contactId) {
   try {
     // peek only updatable fields!
 
-    let updatedUser = await userService.getByEmail(loggedUserEmail);
-    updatedUser.coins -= transferAmount;
-    updatedUser = await userService.update(updatedUser);
+    const updatedUser = await userService.getById(loggedUserId);
 
-    let newTransfer = {
-      from: loggedUserEmail,
-      to: contactEmail,
-      fromBalance: updatedUser.coins,
+    const contact = updatedUser.contacts.find(
+      (contact) => contact._id === contactId
+    );
+
+    const isUser = await userService.getByEmail(contact.contactEmail);
+    if (!isUser) return Promise.reject("Contact not signed");
+
+    const newTransfer = {
+      from: ObjectId(loggedUserId),
+      to: isUser._id,
       transferAmount,
     };
 
-    const isUser = await userService.getByEmail(contactEmail);
-    if (isUser) {
-      isUser.coins += transferAmount;
-      await userService.update(isUser);
-      newTransfer.toBalance = isUser.coins;
-    }
+    isUser.coins += transferAmount;
+    newTransfer.toBalance = isUser.coins;
+    await userService.update(isUser);
+
+    updatedUser.coins -= transferAmount;
+    newTransfer.fromBalance = updatedUser.coins;
+    await userService.update(updatedUser);
 
     const collection = await dbService.getCollection("transfer");
     await collection.insertOne(newTransfer);
+
     delete newTransfer.fromBalance;
     delete newTransfer.toBalance;
     return newTransfer;

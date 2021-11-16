@@ -5,18 +5,19 @@ const logger = require("../../services/logger.service");
 async function addTransfer(req, res) {
   try {
     const { transferAmount } = req.body;
-    const { contactEmail } = req.body;
-    const { loggedUserEmail } = req.body;
+    const { contactId } = req.body;
+    const loggedUserId = req.session.userId;
+    // console.log({ transferAmount, contactId, loggedUserId });
 
     const transfer = await transferService.addTransfer(
       transferAmount,
-      loggedUserEmail,
-      contactEmail
+      loggedUserId,
+      contactId
     );
     res.send(transfer);
   } catch (err) {
-    logger.error("Failed to update user", err);
-    res.status(500).send({ err: "Failed to update user" });
+    // logger.error("Failed to update user", err);
+    res.status(500).send(err);
   }
 }
 
@@ -31,12 +32,12 @@ async function getTransfers(req, res) {
   }
 }
 
-async function getTransfersByContactId(req, res) {
+async function getTransfersByContactEmail(req, res) {
   try {
-    const contactId = req.params.id;
-    const loggedUserId = req.session.user._id;
-    const transfers = await transferService.getTransfersByContactId(
-      contactId,
+    const contactEmail = req.params.email;
+    const loggedUserId = req.session.userId;
+    const transfers = await transferService.getTransfersByContactEmail(
+      contactEmail,
       loggedUserId
     );
     res.send(transfers);
@@ -49,5 +50,5 @@ async function getTransfersByContactId(req, res) {
 module.exports = {
   addTransfer,
   getTransfers,
-  getTransfersByContactId,
+  getTransfersByContactEmail,
 };
