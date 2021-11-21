@@ -68,8 +68,7 @@ async function getTransfersByContactEmail(contactEmail, loggedUserId) {
         ],
       })
       .toArray();
-    console.log({ transfers });
-    console.log({ isUser });
+
     const transferToReturn = transfers.map((transfer) => {
       transfer.createdAt = ObjectId(transfer._id).getTimestamp();
       if (loggedUserId === transfer.from.toString()) {
@@ -83,7 +82,6 @@ async function getTransfersByContactEmail(contactEmail, loggedUserId) {
       }
       return transfer;
     });
-    console.log({ transferToReturn });
     return _sortByDate(transferToReturn);
   } catch (err) {
     logger.error("cannot find users", err);

@@ -7,13 +7,13 @@ async function addTransfer(req, res) {
     const { transferAmount } = req.body;
     const { contactId } = req.body;
     const loggedUserId = req.session.userId;
-    // console.log({ transferAmount, contactId, loggedUserId });
 
     const transfer = await transferService.addTransfer(
       transferAmount,
       loggedUserId,
       contactId
     );
+
     res.send(transfer);
   } catch (err) {
     // logger.error("Failed to update user", err);

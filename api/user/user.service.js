@@ -99,7 +99,6 @@ async function remove(userId) {
 async function update(user) {
   try {
     // peek only updatable fields!
-    // console.log({ user });
 
     const collection = await dbService.getCollection("user");
     user._id = ObjectId(user._id);
