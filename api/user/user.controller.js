@@ -19,6 +19,7 @@ async function getLoggedInUser(req, res) {
     updatedLoggedUser = await userService.getById(loggedInUserId);
     res.json(updatedLoggedUser);
   }
+  
 }
 
 async function getUsers(req, res) {

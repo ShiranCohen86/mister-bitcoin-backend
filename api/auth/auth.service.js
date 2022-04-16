@@ -7,6 +7,7 @@ async function login(email, password) {
   logger.debug(`auth.service - login with email: ${email}`);
 
   const user = await userService.getByEmail(email);
+  console.log(user);
   if (!user) return Promise.reject("Invalid email");
   // TODO: un-comment for real login
   const match = await bcrypt.compare(password, user.password);
@@ -16,6 +17,7 @@ async function login(email, password) {
   delete user.contacts;
 
   return user;
+  
 }
 
 async function signup(password, fullname, email, phone) {
