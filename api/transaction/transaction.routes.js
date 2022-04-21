@@ -4,18 +4,18 @@ const {
   requireAdmin,
 } = require("../../middlewares/requireAuth.middleware");
 const {
-  addTransfer,
-  getTransfers,
-  getTransfersByContactEmail,
-} = require("./transfer.controller");
+  addTransaction,
+  getTransactions,
+  getTransactionsByContactEmail,
+} = require("./transaction.controller");
 const router = express.Router();
 
 // middleware that is specific to this router
 // router.use(requireAuth)
 
-router.get("/", getTransfers);
-router.get("/:email", getTransfersByContactEmail);
+router.get("/", getTransactions);
+router.get("/:email", getTransactionsByContactEmail);
 
-router.post("/", addTransfer);
+router.post("/", addTransaction);
 
 module.exports = router;
