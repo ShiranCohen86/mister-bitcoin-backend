@@ -92,10 +92,7 @@ async function getTransactionsByContactEmail(contactEmail, loggedUserId) {
 async function addTransaction(transactionAmount, loggedUserId, contactId) {
 	try {
 		const updatedUser = await userService.getById(loggedUserId);
-    
 		const contact = updatedUser.contacts.find((contact) => contact._id === contactId);
-		console.log({ contact });
-
 		const isUser = await userService.getByEmail(contact.contactEmail);
 		if (!isUser) return Promise.reject('Contact not signed');
 
